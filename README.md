@@ -111,4 +111,4 @@ MIT License — feel free to use and extend.
 
 ---
 
-**Created by [your name or GitHub handle]**
+**Created by Tom Kluskens**
