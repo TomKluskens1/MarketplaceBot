@@ -7,7 +7,7 @@ load_dotenv()
 FB_C_USER = os.getenv("FB_C_USER")
 FB_XS = os.getenv("FB_XS")
 
-def scrape_marketplace(query, region_id):
+def scrape_marketplace(query, region_id, max_price):
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(user_agent=(
@@ -23,7 +23,7 @@ def scrape_marketplace(query, region_id):
         ])
 
         page = context.new_page()
-        url = f"https://www.facebook.com/marketplace/{region_id}/search?query={query}"
+        url = f"https://www.facebook.com/marketplace/{region_id}/search?maxPrice={max_price}&query={query}&exact=false"
         print(f"🔍 Openen: {url}")
         page.goto(url)
         page.wait_for_selector("a[href^='/marketplace/item/']", timeout=15000)
@@ -34,7 +34,7 @@ def scrape_marketplace(query, region_id):
 
         # Scrape item-kaarten
         cards = page.query_selector_all("a[href^='/marketplace/item/']")
-        print(f"🔎 Gevonden kaarten: {len(cards)}")
+        print(f"🔎 Gevonden zoekertjes: {len(cards)}")
 
         seen_links = set()
 
@@ -86,6 +86,10 @@ if __name__ == "__main__":
         print(f"❌ Geen regio-ID gevonden voor: {regio_naam}")
     else:
         zoekterm = input("🔎 Wat wil je zoeken? ").strip()
-        scrape_marketplace(zoekterm, regio_id)
+        max_price = input("💰 Maximumprijs (bv. 200): ").strip()
 
+        if not max_price.isdigit():
+            print("❌ Ongeldige prijs ingevoerd.")
+        else:
+            scrape_marketplace(zoekterm, regio_id, max_price)
 
